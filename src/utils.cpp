@@ -118,7 +118,8 @@ char segSegInt(Point &a, Point &b, Point &c, Point &d, Point &p) {
     return code;
 }
 
-int inOut(Point &p, int inflag, int aHB, int bHA) {
+int inOut(Point &p, int inflag, int aHB, int bHA, std::vector<Point> &intersections) {
+    intersections.push_back(p);
     std::cout << p << " lineto\n";
     
     if (aHB > 0) return Pin;
@@ -129,8 +130,9 @@ int inOut(Point &p, int inflag, int aHB, int bHA) {
 /**
  * Return the next vertex to consider
  */
-int advance(int a, int * aa, int n, bool inside, Point &v) {
+int advance(int a, int * aa, int n, bool inside, Point &v, std::vector<Point> &intersections) {
     if (inside) {
+        intersections.push_back(v);
         std::cout << v << " lineto\n";
     }
     (*aa)++;
@@ -141,7 +143,7 @@ int advance(int a, int * aa, int n, bool inside, Point &v) {
  * The heart of the code where it does the double advancing segments
  * in order to find the intersected regions
  */
-void convexIntersect(Polygon &P, Polygon &Q) {
+void convexIntersect(Polygon &P, Polygon &Q, std::vector<Point> &intersections) {
     int a, b;
     int a1, b1;
     Point A, B;
@@ -181,25 +183,27 @@ void convexIntersect(Polygon &P, Polygon &Q) {
                 p0.x = p.x; p0.y = p.y;
                 std::cout << p0 << " moveto\n";
             }
-            inflag = inOut(p, inflag, aHB, bHA );
+            inflag = inOut(p, inflag, aHB, bHA, intersections);
         }
 
         if (cross >= 0)
         {
             if (bHA > 0)
-                a = advance(a, &aa, n, inflag == Pin, P.vertices.at(a));
+                a = advance(a, &aa, n, inflag == Pin, P.vertices.at(a), intersections);
             else
-                b = advance(b, &ba, m, inflag == Qin, Q.vertices.at(b));
+                b = advance(b, &ba, m, inflag == Qin, Q.vertices.at(b), intersections);
         }
-        else /* if ( cross < 0 ) */
+        else
         {
             if (aHB > 0)
-                b = advance(b, &ba, m, inflag == Qin, Q.vertices.at(b));
+                b = advance(b, &ba, m, inflag == Qin, Q.vertices.at(b), intersections);
             else
-                a = advance(a, &aa, n, inflag == Pin, P.vertices.at(a));
+                a = advance(a, &aa, n, inflag == Pin, P.vertices.at(a), intersections);
         }
     } while ( ((aa < n) || (ba < m)) && (aa < 2*n) && (ba < 2*m) );
     
-    if (!firstPoint)
+    if (!firstPoint) {
+        intersections.push_back(p0);
         std::cout << p0 << " lineto\n";
+    }
 }

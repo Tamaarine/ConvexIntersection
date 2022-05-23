@@ -3,6 +3,7 @@
 
 #include "point.h"
 #include "polygon.h"
+#include <vector>
 
 #define Pin 0
 #define Qin 1
@@ -46,17 +47,17 @@ char parallelInt(Point &a, Point &b, Point &c, Point &d, Point &p);
  */
 char segSegInt(Point &a, Point &b, Point &c, Point &d, Point &p);
 
-int inOut(Point &p, int inflag, int aHB, int bHA);
+int inOut(Point &p, int inflag, int aHB, int bHA, std::vector<Point> &intersections);
 
 /**
  * Return the next vertex to consider
  */
-int advance(int a, int * aa, int n, bool inside, Point &v);
+int advance(int a, int * aa, int n, bool inside, Point &v, std::vector<Point> &intersections);
 
 /**
  * The heart of the code where it does the double advancing segments
  * in order to find the intersected regions
  */
-void convexIntersect(Polygon &P, Polygon &Q);
+void convexIntersect(Polygon &P, Polygon &Q, std::vector<Point> &intersections);
 
 #endif 
