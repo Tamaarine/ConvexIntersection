@@ -1,6 +1,7 @@
 from matplotlib import pyplot as py
 
 INTERSECTION = []
+poly1 = True
 
 class Point():
     def __init__(self, x, y):
@@ -48,6 +49,49 @@ class Polygon():
         
     def size(self):
         return len(self.polygon)
+    
+def onmouseclick(event):
+    '''Event handler for inputting the points and storing it into the global list "points" '''
+    global ax
+    ix, iy = event.xdata, event.ydata
+    if ix and iy:
+        toAppend = Point(ix, iy)
+        if poly1:
+            polygon1.polygon.append(toAppend)
+            ax.plot(ix, iy, marker='o', color='black')
+            py.show()
+        else:
+            polygon2.polygon.append(toAppend)
+            ax.plot(ix, iy, marker='o', color='orange')
+            py.show()
+
+def onkeypress(event):
+    global ax, gw, poly1
+    
+    if event.key == ' ':
+        '''Carry out the gift-wrapping stop point collection from mouse if exists '''
+        poly1 = False
+        print("flipped")
+    elif event.key == 'c':
+        convexIntersect(polygon1, polygon2)
+    
+        xs = [ele.x for ele in polygon1.polygon]
+        ys = [ele.y for ele in polygon1.polygon]
+        
+        py.plot(xs, ys)
+        
+        xs = [ele.x for ele in polygon2.polygon]
+        ys = [ele.y for ele in polygon2.polygon]
+        
+        py.plot(xs, ys, color='r')
+        
+        xs = [ele.x for ele in INTERSECTION]
+        ys = [ele.y for ele in INTERSECTION]
+        
+        py.plot(xs, ys, color='blue')
+        
+        py.show()
+
     
 def area2(a: Point, b: Point, c: Point):
     return (b.x - a.x) * (c.y - a.y) - \
@@ -222,58 +266,14 @@ def convexIntersect(p: Polygon, q: Polygon) -> Polygon:
         INTERSECTION.append(Point(p0.x, p0.y))
         
 if __name__ == "__main__":
-    # Intersection
-    a = Point(-3.0, -1)
-    b = Point(-4, 2)
-    c = Point(-5, 1)
-    d = Point(-3, 0)
-    ret = segSegInt(a, b, c, d)
-    print(ret)
+    fig, ax = py.subplots(1, 1)
     
-    # No intersection
-    a = Point(-2, -1)
-    b = Point(-4, 2)
-    c = Point(-5, 1)
-    d = Point(-3, 0)
-    ret = segSegInt(a, b, c, d)
-    print(ret)
+    cid = fig.canvas.mpl_connect('button_press_event', onmouseclick)
+    fig.canvas.mpl_connect('key_press_event', onkeypress)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
     
-    # Collinear
-    a = Point(-5, 1)
-    b = Point(-3, 0)
-    c = Point(-5, 1)
-    d = Point(-3, 0)
-    ret = segSegInt(a, b, c, d)
-    print(ret)
-    
-    poly1 = Polygon()
-    poly2 = Polygon()
-    poly1.loadpoints(file='poly1.txt')
-    poly2.loadpoints(file='poly2.txt')
-    
-    print("hello")
-    print(poly1)
-    print(poly2)
-    
-    
-    convexIntersect(poly1, poly2)
-    
-    xs = [ele.x for ele in poly1.polygon]
-    ys = [ele.y for ele in poly1.polygon]
-    
-    py.plot(xs, ys)
-    
-    xs = [ele.x for ele in poly2.polygon]
-    ys = [ele.y for ele in poly2.polygon]
-    
-    py.plot(xs, ys, color='r')
-    
-    xs = [ele.x for ele in INTERSECTION]
-    ys = [ele.y for ele in INTERSECTION]
-    
-    py.plot(xs, ys, color='pink')
+    polygon1 = Polygon()
+    polygon2 = Polygon()
     
     py.show()
-    
-    
-    
