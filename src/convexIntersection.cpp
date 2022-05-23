@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include "polygon.h"
 #include "utils.h"
-#include <vector>
 
 using namespace std;
 

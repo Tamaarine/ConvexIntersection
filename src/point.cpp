@@ -1,5 +1,5 @@
 #include <iostream>
-#include <point.h>
+#include "point.h"
 
 Point subtract(Point &p1, Point &p2) {
     Point ret; 

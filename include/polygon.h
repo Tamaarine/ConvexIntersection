@@ -1,8 +1,8 @@
 #ifndef POLYGON
 #define POLYGON
 
-#include "point.h"
 #include <vector>
+#include "point.h"
 
 class Polygon {
     public:

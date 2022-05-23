@@ -1,9 +1,9 @@
 #ifndef UTILS
 #define UTILS
 
+#include <vector>
 #include "point.h"
 #include "polygon.h"
-#include <vector>
 
 #define Pin 0
 #define Qin 1
