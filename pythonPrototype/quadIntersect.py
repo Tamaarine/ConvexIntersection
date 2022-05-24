@@ -74,11 +74,13 @@ def onkeypress(event):
         print("flipped")
     elif event.key == 'c':
         convexIntersect(polygon1, polygon2)
-    
+        
+        polygon1.polygon.append(polygon1.polygon[0])
+        polygon2.polygon.append(polygon2.polygon[0])
         xs = [ele.x for ele in polygon1.polygon]
         ys = [ele.y for ele in polygon1.polygon]
         
-        py.plot(xs, ys)
+        py.plot(xs, ys, color='black')
         
         xs = [ele.x for ele in polygon2.polygon]
         ys = [ele.y for ele in polygon2.polygon]
@@ -88,7 +90,7 @@ def onkeypress(event):
         xs = [ele.x for ele in INTERSECTION]
         ys = [ele.y for ele in INTERSECTION]
         
-        py.plot(xs, ys, color='blue')
+        py.plot(xs, ys, color='green')
         
         py.show()
 
@@ -109,10 +111,10 @@ def areaSign(a: Point, b: Point, c: Point):
         return 0 
     
 def collinear(a, b, c):
-    return area2(a, b, c) == 0
+    return areaSign(a, b, c) == 0
 
 def between(a, b, c):
-    if not collinear(a, b, c): return False
+    # if not collinear(a, b, c): return False
     
     if a.x != b.x:
         return (a.x <= c.x and c.x <= b.x) or \
@@ -125,14 +127,19 @@ def parallelInt(a, b, c, d):
     if not collinear(a, b, c):
         return '0', Point(-1, -1)
     
-    if between(a, b, c):
-        return 'e', c 
-    if between(a, b, d):
-        return 'e', d
-    if between(c, d, a):
-        return 'e', a
-    if between(c, d, b):
-        return 'e', b
+    if between(a, b, c) and between(a, b, d):
+        return 'e', c, d 
+    if between(c, d, a) and between(c, d, b):
+        return 'e', a, b
+    if between(a, b, c) and between(c, d, b):
+        return 'e', c, b
+    if between(a, b, c) and between(c, d, a):
+        return 'e', c, a
+    if between(a, b, d) and between(c, d, b):
+        return 'e', d, b
+    if between(a, b, d) and between(c, d, a):
+        return 'e', d, a 
+
     return '0', Point(-1, -1)
 
 def segSegInt(a, b, c, d):
@@ -201,6 +208,9 @@ def advance(a, n, inside, v):
         
     return (a + 1) % n
     
+def dot(a, b):
+    return a.x * b.x + a.y + b.y
+    
 def convexIntersect(p: Polygon, q: Polygon) -> Polygon:
     a, b = 0, 0                         # Indices for P and Q
     a1, b1 = 0, 0                       # a1 and b1, edges after a, b 
@@ -233,7 +243,15 @@ def convexIntersect(p: Polygon, q: Polygon) -> Polygon:
         aHB = areaSign(q[b1], q[b], p[a]) # Left tests
         bHA = areaSign(p[a1], p[a], q[b]) # Left tests
         
-        code, retp = segSegInt(p[a1], p[a], q[b1], q[b])
+        whole = segSegInt(p[a1], p[a], q[b1], q[b])
+        if len(whole) == 3:
+            code = whole[0]
+            retp = whole[1]
+            retq = whole[2]
+        else:
+            code = whole[0]
+            retp = whole[1]
+        
         if code == '1' or code == 'v':
             if inflag == 2 and firstPoint:
                 aa = ba = 0
@@ -241,10 +259,29 @@ def convexIntersect(p: Polygon, q: Polygon) -> Polygon:
                 p0.x = retp.x
                 p0.y = retp.y
                 print(f"{p0.x} {p0.y} moveto")
+                INTERSECTION.append(Point(p0.x, p0.y))
             inflag = inOut(retp, inflag, aHB, bHA)
         
+        if code == 'e' and dot(A, B) < 0:
+            print(f"{p.x} {p.y} moveto")
+            print(f"{q.x} {q.y} lineto")
+            INTERSECTION.append(p)
+            INTERSECTION.append(q)
+            firstPoint = True
+            break
+        elif cross == 0 and aHB <0 and bHA < 0:
+            print("P and Q are disjoint")
+            firstPoint = True
+            break
+        elif cross == 0 and aHB == 0 and bHA == 0:
+            if inflag == 0:
+                b = advance(b, m, inflag == 1, q[b])
+                ba += 1
+            else:
+                a = advance(a, n, inflag == 0, p[a])
+                aa += 1
         # Generic cases for advancing the segments
-        if cross >= 0:
+        elif cross >= 0:
             if bHA > 0:
                 a = advance(a, n, inflag == 0, p[a])
                 aa += 1
@@ -258,7 +295,8 @@ def convexIntersect(p: Polygon, q: Polygon) -> Polygon:
             else:
                 a = advance(a, n, inflag == 0, p[a])
                 aa += 1
-        if not (aa < n) and not (ba < m) or not aa < 2*n or not ba < 2*m:
+                
+        if (not (aa < n) and not (ba < m)) or not aa < 2*n or not ba < 2*m:
             break
     
     if not firstPoint:
@@ -267,6 +305,14 @@ def convexIntersect(p: Polygon, q: Polygon) -> Polygon:
         
 if __name__ == "__main__":
     fig, ax = py.subplots(1, 1)
+    
+    cid = fig.canvas.mpl_connect('button_press_event', onmouseclick)
+    fig.canvas.mpl_connect('key_press_event', onkeypress)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+    
+    polygon1 = Polygon()
+    polygon2 = Polygon()
     
     cid = fig.canvas.mpl_connect('button_press_event', onmouseclick)
     fig.canvas.mpl_connect('key_press_event', onkeypress)
