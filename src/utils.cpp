@@ -207,3 +207,7 @@ void convexIntersect(Polygon &P, Polygon &Q, std::vector<Point> &intersections) 
         std::cout << p0 << " lineto\n";
     }
 }
+
+double dot(Point &a, Point &b) {
+    
+}

@@ -33,7 +33,7 @@ bool between(Point &a, Point &b, Point &c);
 /**
  * The special case for segSegIntersection.
  */
-char parallelInt(Point &a, Point &b, Point &c, Point &d, Point &p);
+char parallelInt(Point &a, Point &b, Point &c, Point &d, Point &p, Point &q);
 
 /**
  * Given segment ab and cd, find the point of intersection p between
@@ -45,7 +45,7 @@ char parallelInt(Point &a, Point &b, Point &c, Point &d, Point &p);
  *          neither 'v' nor 'e' holds).
  *      '0': The segments do not intersect (i.e., they share no points).
  */
-char segSegInt(Point &a, Point &b, Point &c, Point &d, Point &p);
+char segSegInt(Point &a, Point &b, Point &c, Point &d, Point &p, Point &q);
 
 int inOut(Point &p, int inflag, int aHB, int bHA, std::vector<Point> &intersections);
 
@@ -59,5 +59,10 @@ int advance(int a, int * aa, int n, bool inside, Point &v, std::vector<Point> &i
  * in order to find the intersected regions
  */
 void convexIntersect(Polygon &P, Polygon &Q, std::vector<Point> &intersections);
+
+/**
+ * Find the dot product between point a and point b
+ */
+double dot(Point &a, Point &b);
 
 #endif 
